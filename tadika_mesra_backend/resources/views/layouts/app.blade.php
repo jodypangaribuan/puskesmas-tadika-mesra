@@ -13,31 +13,31 @@
                 extend: {
                     colors: {
                         primary: {
-                            ultralight: '#f0fdf4',
-                            verylight: '#dcfce7',
-                            light: '#22c55e',
-                            medium: '#16a34a',
-                            DEFAULT: '#15803d',
-                            dark: '#166534',
-                            deeper: '#14532d'
+                            ultralight: '#f8f9fa',
+                            verylight: '#f1f3f5',
+                            light: '#e9ecef',
+                            medium: '#dee2e6',
+                            DEFAULT: '#ced4da',
+                            dark: '#adb5bd',
+                            deeper: '#6c757d'
                         },
                         green: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            200: '#bbf7d0',
-                            300: '#86efac',
-                            400: '#4ade80',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                            800: '#166534',
-                            900: '#14532d',
-                            950: '#052e16',
+                            50: '#f0fdf4',   /* Lightest green */
+                            100: '#dcfce7',  /* Very light green */
+                            200: '#bbf7d0',  /* Light green */
+                            300: '#86efac',  /* Green */
+                            400: '#4ade80',  /* Medium green */
+                            500: '#22c55e',  /* Primary green */
+                            600: '#16a34a',  /* Dark green */
+                            700: '#15803d',  /* Darker green */
+                            800: '#166534',  /* Very dark green */
+                            900: '#14532d',  /* Deepest green */
+                            950: '#052e16',  /* Almost black green */
                         },
-                        success: '#059669',
-                        danger: '#dc2626',
-                        warning: '#fbbf24',
-                        info: '#0284c7'
+                        success: '#ced4da',
+                        danger: '#dee2e6',
+                        warning: '#e9ecef',
+                        info: '#f1f3f5'
                     }
                 }
             }
@@ -53,31 +53,40 @@
     <!-- Custom Styles -->
     <style>
         :root {
-            --primary-color: #15803d; /* Hijau tua */
-            --primary-light: #22c55e; /* Hijau lebih terang */
-            --primary-medium: #16a34a; /* Medium green for accents */
-            --primary-dark: #166534;  /* Hijau sangat tua */
-            --primary-deeper: #14532d; /* Hijau lebih gelap */
-            --primary-very-light: #dcfce7; /* Hijau sangat terang */
-            --primary-ultra-light: #f0fdf4; /* Hijau ultra terang for backgrounds */
-            --success-color: #059669; /* Success green */
-            --danger-color: #dc2626; /* Red for errors/danger */
-            --warning-color: #fbbf24; /* Yellow for warnings */
-            --info-color: #0284c7; /* Blue for info */
-            --body-bg: #f0fdf4; /* Light green background */
-            --card-bg: #ffffff; /* Card background */
-            --sidebar-bg: #15803d; /* Green sidebar background */
-            --sidebar-hover: #166534; /* Darker green for hover states */
-            --header-bg: #ffffff; /* Header background */
-            --footer-bg: #ffffff; /* Footer background */
+            /* Base colors */
+            --body-bg: #f0fdf4; /* Background hijau sangat terang */
+            --card-bg: #ffffff; /* White card background */
+            --sidebar-bg: #ffffff; /* White sidebar background */
+            --sidebar-hover: var(--green-50); /* Green hover for sidebar */
+            --sidebar-active: var(--green-100); /* Lighter green for active items */
+            --header-bg: #ffffff; /* White header background */
+            --footer-bg: #ffffff; /* White footer background */
+            --text-primary: #343a40; /* Dark grey text */
+            --text-secondary: #6c757d; /* Medium grey text */
+            --text-sidebar: #343a40; /* Dark grey sidebar text */
+            --text-sidebar-muted: #adb5bd; /* Light grey muted text */
+            --border-color: #dee2e6; /* Light grey border */
+            
+            /* Green palette */
+            --green-50: #f0fdf4;
+            --green-100: #dcfce7;
+            --green-200: #bbf7d0;
+            --green-300: #86efac;
+            --green-400: #4ade80;
+            --green-500: #22c55e;
+            --green-600: #16a34a;
+            --green-700: #15803d;
+            --green-800: #166534;
+            --green-900: #14532d;
+            --green-950: #052e16;
         }
         
         body {
-            background-color: var(--body-bg); /* Light green background */
+            background-color: var(--body-bg); /* Keep green background */
             overflow-x: hidden;
-            color: #333;
+            color: #343a40; /* Dark grey text */
             font-family: 'Inter', 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath fill='%2392d9a7' fill-opacity='0.1' d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5z'%3E%3C/path%3E%3C/svg%3E");
+
         }
         
         /* Fix sidebar to viewport */
@@ -91,7 +100,7 @@
             z-index: 50;
             transition: transform 0.3s ease;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            background-color: #15803d; /* Green sidebar background */
+            background-color: #ffffff; /* White sidebar background */
         }
         
         /* Fix header to viewport */
@@ -115,7 +124,7 @@
             height: calc(100vh - 4.5rem); /* Viewport height minus header height */
             overflow-y: auto;
             transition: margin-left 0.3s ease;
-            background-color: #f0fdf4; /* Light green background */
+            background-color: transparent; /* Transparent background to show the teal background */
         }
         
         /* Footer positioning */
@@ -141,12 +150,12 @@
         }
         
         ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
+            background: #dee2e6;
             border-radius: 10px;
         }
         
         ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+            background: #adb5bd;
         }
         
         /* Collapsed sidebar state */
