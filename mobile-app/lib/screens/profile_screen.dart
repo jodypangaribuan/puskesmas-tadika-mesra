@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_puskesmas/models/user_model.dart';
 import 'package:mobile_puskesmas/screens/auth/login_screen.dart';
 import 'package:mobile_puskesmas/services/auth_service.dart';
+import 'package:iconsax/iconsax.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -162,7 +163,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           // Add refresh button
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Iconsax.refresh),
             onPressed:
                 _isRefreshing ? null : () => _loadUserData(forceRefresh: true),
             tooltip: 'Refresh data',
@@ -240,7 +241,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   radius: 40,
                   backgroundColor: Colors.white,
                   child: Icon(
-                    Icons.person,
+                    Iconsax.user,
                     size: 50,
                     color: Color(0xFF06489F),
                   ),
@@ -327,7 +328,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
-                  Icons.badge_outlined,
+                  Iconsax.card,
                   color: Color(0xFF06489F),
                   size: 30,
                 ),
@@ -512,23 +513,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       children: [
         _buildActionButton(
-          icon: Icons.history,
+          icon: Iconsax.clock,
           title: 'Riwayat Kunjungan',
           onTap: () {
-            // TODO: Navigate to history page
+            // Navigate to visit history
           },
         ),
         const SizedBox(height: 10),
         _buildActionButton(
-          icon: Icons.medication,
+          icon: Iconsax.health,
           title: 'Riwayat Pengobatan',
           onTap: () {
-            // TODO: Navigate to medication history
+            // Navigate to medication history
           },
         ),
         const SizedBox(height: 10),
         _buildActionButton(
-          icon: Icons.edit_outlined,
+          icon: Iconsax.edit,
           title: 'Ubah Data Profil',
           onTap: () {
             // TODO: Navigate to edit profile
@@ -536,7 +537,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         const SizedBox(height: 10),
         _buildActionButton(
-          icon: Icons.settings,
+          icon: Iconsax.setting,
           title: 'Konfigurasi Server',
           onTap: () {
             _showServerConfigDialog(context);
@@ -634,13 +635,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildDataItem(String label, String value) {
     final textGreyColor = Colors.grey.shade700;
 
+    // Get icon based on label
+    IconData getIconForLabel() {
+      switch (label.toLowerCase()) {
+        case 'tempat, tanggal lahir':
+          return Iconsax.calendar_1;
+        case 'jenis kelamin':
+          return Iconsax.user;
+        case 'alamat':
+          return Iconsax.location;
+        case 'no. telepon':
+          return Iconsax.call;
+        case 'email':
+          return Iconsax.message;
+        case 'status perkawinan':
+          return Iconsax.heart;
+        case 'agama':
+          return Iconsax.book_1;
+        case 'pekerjaan':
+          return Iconsax.briefcase;
+        case 'pendidikan terakhir':
+          return Iconsax.teacher;
+        case 'golongan darah':
+          return Iconsax.drop;
+        case 'rhesus':
+          return Iconsax.health;
+        case 'tinggi badan':
+          return Iconsax.ruler;
+        case 'berat badan':
+          return Iconsax.weight;
+        case 'imt':
+          return Iconsax.chart;
+        case 'tekanan darah':
+          return Iconsax.heart_tick;
+        case 'disabilitas':
+          return Iconsax.people;
+        case 'riwayat alergi':
+          return Iconsax.warning_2;
+        case 'riwayat penyakit':
+          return Iconsax.hospital;
+        case 'faskes tingkat 1':
+          return Iconsax.building_3;
+        case 'no. bpjs kesehatan':
+          return Iconsax.card;
+        case 'status kepesertaan':
+          return Iconsax.tick_circle;
+        case 'kelas rawat':
+          return Iconsax.home;
+        case 'masa berlaku':
+          return Iconsax.calendar_circle;
+        default:
+          return Iconsax.document;
+      }
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Icon(
+            getIconForLabel(),
+            size: 18,
+            color: const Color(0xFF06489F),
+          ),
+          const SizedBox(width: 8),
           SizedBox(
-            width: 120,
+            width: 112,
             child: Text(
               label,
               style: TextStyle(
@@ -714,7 +775,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const Spacer(),
             const Icon(
-              Icons.arrow_forward_ios,
+              Iconsax.arrow_right_3,
               color: Colors.black38,
               size: 16,
             ),
@@ -738,7 +799,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.logout,
+              Iconsax.logout,
               color: Colors.red,
               size: 20,
             ),

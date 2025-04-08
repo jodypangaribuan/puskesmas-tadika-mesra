@@ -24,6 +24,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Auth routes for mobile app
 Route::post('/register', [AuthApiController::class, 'register']);
 Route::post('/login', [AuthApiController::class, 'login']);
+Route::post('/login-with-nik', [AuthApiController::class, 'loginWithNik']);
 
 // Protected routes that require authentication
 Route::middleware('auth:sanctum')->group(function () {

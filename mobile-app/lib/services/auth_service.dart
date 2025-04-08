@@ -8,7 +8,7 @@ import 'package:mobile_puskesmas/models/user_model.dart';
 class AuthService {
   // Base URL for the API - set this to your actual ngrok URL
   static String baseUrl =
-      'https://aec6-157-15-174-23.ngrok-free.app/api'; // Replace with your actual ngrok URL
+      'https://8b04-114-122-41-16.ngrok-free.app/api'; // Replace with your actual ngrok URL
 
   // Key for storing user data in SharedPreferences
   static const String userKey = 'user_data';
@@ -37,6 +37,46 @@ class AuthService {
           'password': password,
         }),
       );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final user = UserModel.fromJson(data['data']);
+
+        // Save user data to SharedPreferences
+        await _saveUserData(user);
+
+        return user;
+      } else {
+        final data = jsonDecode(response.body);
+        throw Exception(data['message'] ?? 'Login gagal');
+      }
+    } on SocketException {
+      throw Exception(
+          'Tidak dapat terhubung ke server. Pastikan server sedang berjalan dan alamat IP sudah benar.');
+    } on HttpException {
+      throw Exception('Terjadi kesalahan HTTP saat menghubungi server.');
+    } on FormatException {
+      throw Exception('Format respons dari server tidak valid.');
+    } catch (e) {
+      throw Exception('Terjadi kesalahan: ${e.toString()}');
+    }
+  }
+
+  // User login with NIK
+  Future<UserModel?> loginWithNik(String nik, String password) async {
+    try {
+      print('Attempting to login with NIK: $nik');
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/login-with-nik'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'nik': nik,
+          'password': password,
+        }),
+      );
+
+      print('Login response status: ${response.statusCode}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

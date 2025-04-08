@@ -87,7 +87,7 @@ class AuthApiController extends Controller
     }
 
     /**
-     * Login for app users
+     * Login for app users using email
      */
     public function login(Request $request)
     {
@@ -152,6 +152,95 @@ class AuthApiController extends Controller
                 'data' => $userData
             ]);
         } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Login gagal',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Login for app users using NIK
+     */
+    public function loginWithNik(Request $request)
+    {
+        // Validate input
+        $validator = Validator::make($request->all(), [
+            'nik' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            // Log the login attempt
+            Log::info('Login with NIK attempt', ['nik' => $request->nik]);
+
+            // Find the user by NIK
+            $user = User::where('nik', $request->nik)
+                     ->where('user_type', 'app_user')
+                     ->first();
+
+            // Check if user exists and password is correct
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'NIK tidak terdaftar'
+                ], 401);
+            }
+
+            if (!Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Password salah'
+                ], 401);
+            }
+
+            // Revoke any existing tokens
+            $user->tokens()->delete();
+
+            // Create a new token
+            $token = $user->createToken('app-user-auth-token')->plainTextToken;
+
+            // Check if user has a patient record
+            $isPatient = $user->isPatient();
+
+            // Optional: Get patient data if exists
+            $patientData = null;
+            if ($isPatient) {
+                $patientData = $user->pasien;
+            }
+
+            // Prepare user data for response
+            $userData = $user->toArray();
+            $userData['token'] = $token;
+            $userData['is_patient'] = $isPatient;
+            $userData['patient_data'] = $patientData;
+
+            // Update last login details
+            $user->update([
+                'last_login_at' => now(),
+                'last_login_ip' => $request->ip(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Login berhasil',
+                'data' => $userData
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Login with NIK failed', [
+                'nik' => $request->nik,
+                'error' => $e->getMessage()
+            ]);
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Login gagal',

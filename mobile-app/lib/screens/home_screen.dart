@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:mobile_puskesmas/screens/patient_registration_screen.dart';
-import 'package:mobile_puskesmas/models/user_model.dart';
+// import 'package:mobile_puskesmas/screens/patient_registration_screen.dart';
 import 'package:mobile_puskesmas/services/auth_service.dart';
-import 'package:mobile_puskesmas/screens/medical_screen.dart';
+import 'package:mobile_puskesmas/screens/patient_form_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -174,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildHeader() {
     // Get the status bar height and screen size
     final MediaQueryData mediaQuery =
-        MediaQueryData.fromWindow(WidgetsBinding.instance.window);
+        MediaQueryData.fromView(WidgetsBinding.instance.window);
     final double statusBarHeight = mediaQuery.padding.top;
     final double screenWidth = mediaQuery.size.width;
 
@@ -245,7 +244,7 @@ class _HomeScreenState extends State<HomeScreen> {
               top: 0,
               bottom: 0,
               child: Center(
-                child: Container(
+                child: SizedBox(
                   width: logoSize,
                   height: logoSize,
                   child: Image.asset(
@@ -375,7 +374,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           // Left section - Hospital illustration
           ClipRRect(
-            borderRadius: BorderRadius.only(
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(12),
               bottomLeft: Radius.circular(12),
             ),
@@ -494,34 +493,418 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    // Check if already registered as patient
-    final bool isPatient = await AuthService().isPatient();
+    // Display health facility selection bottom sheet
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.45, // Lebih kecil agar informasi tidak kelihatan
+        minChildSize: 0.4, // Minimal 40% dari layar
+        maxChildSize: 0.95, // Maksimal 95% dari layar
+        expand: false,
+        builder: (context, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                spreadRadius: 0,
+                offset: const Offset(0, -3),
+              ),
+            ],
+          ),
+          child: ListView(
+            controller: scrollController,
+            padding: const EdgeInsets.fromLTRB(20, 5, 20, 25),
+            children: [
+              // Garis kecil di bagian atas sebagai indikator
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(top: 10, bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+              ),
 
-    if (isPatient) {
-      // If already a patient, navigate to medical appointment screen
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const MedicalScreen(),
+              // Judul
+              const Text(
+                'Pilih Jenis Fasilitas Kesehatan',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF06489F),
+                  fontFamily: 'KohSantepheap',
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // Subtitle - petunjuk untuk scroll
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F9FF),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                      color: const Color(0xFF06489F).withOpacity(0.1)),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.keyboard_double_arrow_up_rounded,
+                      color: Color(0xFF06489F),
+                      size: 16,
+                    ),
+                    SizedBox(width: 6),
+                    Text(
+                      'Geser ke atas untuk informasi lebih lanjut',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF06489F),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 25),
+
+              // Pilihan fasilitas
+              Row(
+                children: [
+                  _buildFacilityOption(
+                    context,
+                    icon: 'assets/images/hospital-illustration.png',
+                    title: 'Faskes\nTingkat Pertama',
+                    onTap: () {
+                      Navigator.pop(context);
+                      _handleFaskesPertama();
+                    },
+                  ),
+                  const SizedBox(width: 16),
+                  _buildFacilityOption(
+                    context,
+                    icon: 'assets/images/hospital-illustration.png',
+                    title: 'Faskes Rujukan\nTingkat Lanjut',
+                    onTap: () {
+                      Navigator.pop(context);
+                      _handleFaskesRujukan();
+                    },
+                  ),
+                ],
+              ),
+
+              // Space dengan ketinggian cukup agar content berikutnya tidak terlihat saat pertama kali dibuka
+              const SizedBox(height: 40),
+
+              // Garis pembatas dengan dekorasi
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 5),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Divider(
+                      color: Colors.grey.shade300,
+                      thickness: 1,
+                      height: 30,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: const Text(
+                        'Informasi Detail',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF06489F),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // Judul informasi penjelasan
+              const Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: Color(0xFF06489F),
+                    size: 20,
+                  ),
+                  SizedBox(width: 10),
+                  Text(
+                    'Informasi Fasilitas Kesehatan',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF06489F),
+                      fontFamily: 'KohSantepheap',
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              // Informasi Faskes Tingkat Pertama
+              _buildFacilityInfoSection(
+                title: 'Fasilitas Kesehatan Tingkat Pertama (FKTP)',
+                content:
+                    '''Fasilitas Kesehatan Tingkat Pertama (FKTP) adalah fasilitas pelayanan kesehatan dasar yang menjadi kontak pertama bagi peserta BPJS Kesehatan. FKTP memberikan pelayanan kesehatan dasar yang bersifat non-spesialistik.
+
+Kategori FKTP:
+• Puskesmas
+• Klinik Pratama
+• Praktik Dokter
+• Praktik Dokter Gigi
+• Klinik TNI/POLRI
+• Rumah Sakit Tipe D Pratama
+
+Jenis Pelayanan yang ditanggung:
+• Konsultasi medis dan penyuluhan
+• Pemeriksaan dan pengobatan dasar
+• Pemeriksaan penunjang diagnostik sederhana
+• Tindakan medis non-spesialistik
+• Pelayanan obat dan bahan medis habis pakai
+• Pemeriksaan ibu hamil, nifas, dan menyusui
+• Pelayanan program rujuk balik''',
+              ),
+
+              const SizedBox(height: 25),
+
+              // Informasi Faskes Rujukan Tingkat Lanjut
+              _buildFacilityInfoSection(
+                title: 'Fasilitas Kesehatan Rujukan Tingkat Lanjut (FKRTL)',
+                content:
+                    '''Fasilitas Kesehatan Rujukan Tingkat Lanjut (FKRTL) adalah fasilitas pelayanan kesehatan lanjutan yang memberikan pelayanan spesialistik dan sub-spesialistik. FKRTL hanya dapat diakses melalui rujukan dari FKTP kecuali dalam kondisi gawat darurat.
+
+Kategori FKRTL:
+• Rumah Sakit Umum
+• Rumah Sakit Khusus
+• Balai Kesehatan
+• Klinik Utama
+
+Jenis Pelayanan yang ditanggung:
+• Rawat jalan tingkat lanjutan
+• Rawat inap tingkat lanjutan
+• Pelayanan obat dan bahan medis habis pakai
+• Pelayanan penunjang diagnostik lanjutan
+• Tindakan medis spesialistik dan sub-spesialistik
+• Pelayanan rehabilitasi medis
+• Pelayanan kedokteran forensik
+• Pelayanan jenazah di fasilitas kesehatan''',
+              ),
+
+              const SizedBox(height: 25),
+
+              // Informasi Sistem Rujukan BPJS
+              _buildFacilityInfoSection(
+                title: 'Sistem Rujukan BPJS Kesehatan',
+                content:
+                    '''Sistem rujukan BPJS Kesehatan menggunakan pendekatan berjenjang, dimana peserta harus terlebih dahulu memperoleh pelayanan di FKTP kecuali dalam keadaan gawat darurat. Jika diperlukan penanganan lebih lanjut, FKTP akan merujuk ke FKRTL.
+
+Prosedur Rujukan:
+1. Peserta wajib memperoleh pelayanan kesehatan pada FKTP tempat peserta terdaftar.
+2. Jika diperlukan pelayanan lanjutan, FKTP akan memberikan surat rujukan ke FKRTL.
+3. Rujukan diberikan jika pasien memerlukan pelayanan kesehatan spesialistik.
+4. Rujukan berlaku untuk satu kali kunjungan dalam waktu paling lama 30 hari.
+5. Untuk beberapa kondisi kronis tertentu, seperti diabetes, hipertensi, atau penyakit jantung, pasien dapat memperoleh program rujuk balik.
+
+Pengecualian Rujukan Berjenjang:
+• Kondisi gawat darurat
+• Pasien berada di luar wilayah FKTP terdaftar
+• Daerah yang tidak tersedia FKTP atau kekurangan dokter
+• Kondisi khusus yang diatur dalam program pemerintah''',
+              ),
+            ],
+          ),
         ),
-      );
-      return;
-    }
+      ),
+    );
+  }
 
-    // Navigate to patient registration screen
+  Widget _buildFacilityOption(
+    BuildContext context, {
+    required String icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.shade300),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                blurRadius: 5,
+                spreadRadius: 0,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon
+              SizedBox(
+                height: 80,
+                child: Image.asset(
+                  icon,
+                  fit: BoxFit.contain,
+                ),
+              ),
+
+              const Divider(
+                color: Color(0xFFEEEEEE),
+                thickness: 1,
+                height: 30,
+              ),
+
+              // Title
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF06489F),
+                  height: 1.3,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFacilityInfoSection({
+    required String title,
+    required String content,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.05),
+            blurRadius: 4,
+            spreadRadius: 0,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header dengan warna background
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF5F9FF),
+              borderRadius: BorderRadius.circular(8),
+              border:
+                  Border.all(color: const Color(0xFF06489F).withOpacity(0.1)),
+            ),
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF06489F),
+              ),
+            ),
+          ),
+
+          // Content dengan rata kiri-kanan
+          RichText(
+            textAlign: TextAlign.justify,
+            text: TextSpan(
+              style: const TextStyle(
+                fontSize: 13,
+                height: 1.5,
+                color: Colors.black87,
+                fontFamily: 'KohSantepheap',
+              ),
+              text: content,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleFaskesPertama() {
+    // Arahkan ke form pendaftaran pasien
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => PatientRegistrationScreen(
-          onRegistrationSuccess: () {
-            // Refresh the screen or data after successful registration
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Pendaftaran pasien berhasil!'),
-                backgroundColor: Colors.green,
+      MaterialPageRoute(builder: (context) => const PatientFormScreen()),
+    );
+  }
+
+  void _handleFaskesRujukan() {
+    // Tampilkan toast "Coming Soon" yang sederhana
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        backgroundColor: const Color(0xFF06489F),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        duration: const Duration(seconds: 2),
+        content: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.info_outline,
+              color: Colors.white,
+              size: 18,
+            ),
+            SizedBox(width: 10),
+            Flexible(
+              child: Text(
+                'Coming Soon',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
               ),
-            );
-          },
+            ),
+          ],
         ),
       ),
     );
